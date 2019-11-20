@@ -1,0 +1,33 @@
+{
+  "name": "dicom-standard-parser",
+  "version": "1.0.0",
+  "description": "Parses the DICOM standard into easily-consumable JSON objects",
+  "homepage": "https://github.com/yagni/dicom-standard-parser",
+  "author": {
+    "name": "Bryan Cool",
+    "email": "yagni@users.noreply.github.com",
+    "url": "https://github.com/yagni/"
+  },
+  "files": [
+    "src"
+  ],
+  "bin": {
+    "dicom-standard-parser": "src/index.js"
+  },
+  "main": "src/index.js",
+  "keywords": [
+    "dicom",
+    "dcm",
+    "standard",
+    "json",
+    "parser"
+  ],
+  "engines": {
+    "npm": ">= 4.0.0"
+  },
+  "repository": "https://github.com/yagni/dicom-standard-parser.git",
+  "license": "MIT",
+  "dependencies": {
+    "jsdom": "^15.2.0"
+  }
+}
