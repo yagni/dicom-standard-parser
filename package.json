@@ -1,6 +1,6 @@
 {
   "name": "dicom-standard-parser",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Parses the DICOM standard into easily-consumable JSON objects",
   "homepage": "https://github.com/yagni/dicom-standard-parser",
   "author": {
