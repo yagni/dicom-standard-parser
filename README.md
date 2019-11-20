@@ -1,7 +1,3 @@
-# dicom-standard-parser
-
-Parses the most recent DICOM standard into two easily-consumable JSON files with a single command.
-
 ## Usage
 Takes an optional list of IODs to include in the output. If none are provided, every IOD from part 3 of the standard is included:
 
@@ -15,11 +11,14 @@ Outputs two files into the directory in which it's run:
 JSON version of part 6 of the standard. One large object whose keys are tags and whose values are the keyword, VR, and VM columns from the standard.
 ```
 {
+    /* ... */
     "20000010": {
         "name" : "NumberOfCopies",
         "vr" : "IS",
         "vm" : "1"
     },
+    /* ... */
+}
 ```
 
 ### IODs.json
