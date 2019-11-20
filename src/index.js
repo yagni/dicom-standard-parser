@@ -34,12 +34,12 @@ function requestXML(url) {
 
 console.log('Downloading data dictionary and IOD specifications...');
 
-/* Uncomment this if you already have a data dictionary (since parsing it is the slowest part) */
+/* Uncomment this if you already have a data dictionary (since parsing it is the slowest part)
 Promise.all([requestXML('http://dicom.nema.org/medical/dicom/current/source/docbook/part03/part03.xml'),
              JSON.parse(fs.readFileSync('data-dictionary.json', 'utf8'))])
 .then(([part3Contents, dataDictionary]) => {
+*/
 
-/*
 Promise.all([requestXML('http://dicom.nema.org/medical/dicom/current/source/docbook/part03/part03.xml'),
              requestXML('http://dicom.nema.org/medical/dicom/current/source/docbook/part06/part06.xml')])
 .then(([part3Contents, part6Contents]) => {
@@ -49,7 +49,7 @@ Promise.all([requestXML('http://dicom.nema.org/medical/dicom/current/source/docb
 
     fs.writeFileSync('data-dictionary.json', JSON.stringify(dataDictionary, null, spacesPerTab), 'utf8');
     console.log('Wrote data dictionary.');
-*/
+
     console.log('Parsing IODs...');
     const IODNames = process.argv.slice(2);
     const IODs = parseIODs(part3Contents, dataDictionary, IODNames);
