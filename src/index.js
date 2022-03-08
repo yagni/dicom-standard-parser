@@ -3,7 +3,7 @@
 'use strict';
 
 const fs = require('fs');
-const http = require('http');
+const https = require('https');
 const jsdom = require("jsdom");
 const path = require('path');
 const parseDataDictionary = require('./parse-data-dictionary.js');
@@ -12,7 +12,7 @@ const spacesPerTab = 0;  // Change this to 4 to prettify the output
 
 function requestXML(url) {
     return new Promise((resolve, reject) => {
-        http.get(url, (res) => {
+        https.get(url, (res) => {
             let rawData = '';
             res.on('data', (chunk) => { rawData += chunk; });
             res.on('end', () => {
@@ -40,8 +40,8 @@ Promise.all([requestXML('http://dicom.nema.org/medical/dicom/current/source/docb
 .then(([part3Contents, dataDictionary]) => {
 */
 
-Promise.all([requestXML('http://dicom.nema.org/medical/dicom/current/source/docbook/part03/part03.xml'),
-             requestXML('http://dicom.nema.org/medical/dicom/current/source/docbook/part06/part06.xml')])
+Promise.all([requestXML('https://dicom.nema.org/medical/dicom/current/source/docbook/part03/part03.xml'),
+             requestXML('https://dicom.nema.org/medical/dicom/current/source/docbook/part06/part06.xml')])
 .then(([part3Contents, part6Contents]) => {
 
     console.log('Parsing data dictionary...');
