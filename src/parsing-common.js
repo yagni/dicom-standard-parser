@@ -6,3 +6,5 @@ module.exports.nsResolver = function (prefix) {
 
   return ns[prefix] || 'http://docbook.org/ns/docbook';
 }
+
+module.exports.ANY_TYPE = 0;

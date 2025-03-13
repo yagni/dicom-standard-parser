@@ -1,30 +1,29 @@
 const parsingCommon = require('./parsing-common.js');
 const sortKeys = require('./sort-keys.js');
 const nsResolver = parsingCommon.nsResolver;
-const XPathResult = require('jsdom/lib/jsdom/living/index.js').XPathResult;
 
 const ENUMERATED_VALUES = 'Enumerated Values';
 const DEFINED_TERMS = 'Defined Terms';
 
 function cacheSectionNodes(helper) {
-  const nodes = helper.xmlDoc.evaluate(`//section`, helper.xmlDoc.documentElement, nsResolver, XPathResult.ANY_TYPE, null);
+  const nodes = helper.xmlDoc.evaluate(`//section`, helper.xmlDoc.documentElement, nsResolver, parsingCommon.ANY_TYPE, null);
   let sectionNode;
   while (sectionNode = nodes.iterateNext()) {
     helper.sectionNodes[sectionNode.attributes['xml:id'].nodeValue] = sectionNode;
   }
 }
 function cacheTableRows(helper) {
-  const tableNodes = helper.xmlDoc.evaluate(`//table`, helper.xmlDoc.documentElement, nsResolver, XPathResult.ANY_TYPE, null);
+  const tableNodes = helper.xmlDoc.evaluate(`//table`, helper.xmlDoc.documentElement, nsResolver, parsingCommon.ANY_TYPE, null);
   let tableNode;
   while (tableNode = tableNodes.iterateNext()) {
-    helper.tableRows[tableNode.attributes['xml:id'].nodeValue] = helper.xmlDoc.evaluate(`./tbody/tr`, tableNode, nsResolver, XPathResult.ANY_TYPE, null);
+    helper.tableRows[tableNode.attributes['xml:id'].nodeValue] = helper.xmlDoc.evaluate(`./tbody/tr`, tableNode, nsResolver, parsingCommon.ANY_TYPE, null);
   }
 }
 function getCell(helper, path, rowNode) {
-  let cellNode = helper.xmlDoc.evaluate(path, rowNode, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
+  let cellNode = helper.xmlDoc.evaluate(path, rowNode, nsResolver, parsingCommon.ANY_TYPE, null).iterateNext();
   // Typo in the standard (some <td> are <th>)
   if (cellNode == null)
-    cellNode = helper.xmlDoc.evaluate(path.replace('td', 'th'), rowNode, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
+    cellNode = helper.xmlDoc.evaluate(path.replace('td', 'th'), rowNode, nsResolver, parsingCommon.ANY_TYPE, null).iterateNext();
   return cellNode;
 }
 function getDepth (name) {
@@ -34,7 +33,7 @@ function getDepth (name) {
   return (depthMatch || [''])[0];
 }
 function getMacro (helper, elementNode, name) {
-  const tableIdNode = helper.xmlDoc.evaluate('.//xref/@linkend', elementNode, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
+  const tableIdNode = helper.xmlDoc.evaluate('.//xref/@linkend', elementNode, nsResolver, parsingCommon.ANY_TYPE, null).iterateNext();
 
   if (!name.includes('Include') || tableIdNode == null) {
     return undefined;
@@ -71,7 +70,7 @@ function getNumberOfItemsTag(helper, descriptionNode) {
     The number of Items included in this Sequence shall equal the value of
     Shall have the same number of Items as the value of 
   */
-  const paraNode = helper.xmlDoc.evaluate('./para[contains(translate(., \'ABCDEFGHIJKLMNOPQRSTUVWXYZ\', \'abcdefghijklmnopqrstuvwxyz\'),\'number of items\')]', descriptionNode, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
+  const paraNode = helper.xmlDoc.evaluate('./para[contains(translate(., \'ABCDEFGHIJKLMNOPQRSTUVWXYZ\', \'abcdefghijklmnopqrstuvwxyz\'),\'number of items\')]', descriptionNode, nsResolver, parsingCommon.ANY_TYPE, null).iterateNext();
   if (paraNode == null) return undefined;
   descriptionText = paraNode.textContent.trim();
   descriptionMatch = descriptionText.match(/^.*number of items.*(equal to the|equal to|value of|given by)[^\(]+\(([0-9A-Fx]{4}),([0-9A-Fx]{4})\)/i);
@@ -82,7 +81,7 @@ function getNumberOfItemsTag(helper, descriptionNode) {
   return { tag: (descriptionMatch[2].trim().toUpperCase() + descriptionMatch[3].trim().toUpperCase()) };
 }
 function getNumericNumberOfItems(helper, tag, descriptionNode) {
-  let xPathResult = helper.xmlDoc.evaluate('./para[contains(translate(., \'ABCDEFGHIJKLMNOPQRSTUVWXYZ\', \'abcdefghijklmnopqrstuvwxyz\'),\'in this sequence\')]', descriptionNode, nsResolver, XPathResult.ANY_TYPE, null);
+  let xPathResult = helper.xmlDoc.evaluate('./para[contains(translate(., \'ABCDEFGHIJKLMNOPQRSTUVWXYZ\', \'abcdefghijklmnopqrstuvwxyz\'),\'in this sequence\')]', descriptionNode, nsResolver, parsingCommon.ANY_TYPE, null);
   let invalidDescription;
   while(paraNode = xPathResult.iterateNext()) {
     let descriptionText = paraNode.textContent.trim();
@@ -328,12 +327,12 @@ function parseValueList (helper, type, descriptionNode) {
       </varlistentry>
     </variablelist>
   */
-  const titleNode = helper.xmlDoc.evaluate('./variablelist/title', descriptionNode, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
+  const titleNode = helper.xmlDoc.evaluate('./variablelist/title', descriptionNode, nsResolver, parsingCommon.ANY_TYPE, null).iterateNext();
 
   if (titleNode === null || !titleNode.textContent.trim().startsWith(type)) {
     return undefined;
   }
-  const enumeratedValueIterator = helper.xmlDoc.evaluate('./variablelist/varlistentry/term', descriptionNode, nsResolver, XPathResult.ANY_TYPE, null);
+  const enumeratedValueIterator = helper.xmlDoc.evaluate('./variablelist/varlistentry/term', descriptionNode, nsResolver, parsingCommon.ANY_TYPE, null);
   const enumeratedValues = [];
 
   for (let enumeratedValueNode = enumeratedValueIterator.iterateNext(); enumeratedValueNode !== null; enumeratedValueNode = enumeratedValueIterator.iterateNext()) {
@@ -344,14 +343,14 @@ function parseValueList (helper, type, descriptionNode) {
 }
 function parseModule (helper, sectionLabel) {
   const moduleSection = getSection(helper, sectionLabel);
-  const elementIterator = helper.xmlDoc.evaluate('./table[position() = 1]/tbody/tr', moduleSection, nsResolver, XPathResult.ANY_TYPE, null);
+  const elementIterator = helper.xmlDoc.evaluate('./table[position() = 1]/tbody/tr', moduleSection, nsResolver, parsingCommon.ANY_TYPE, null);
 
 
   return parseAttributes(helper, elementIterator); // a module is just a collection of elements
 }
 function parseReferencedValueList (helper, type, descriptionNode) {
   // Case-insensitive search for "see "
-  const referencedSectionIterator = helper.xmlDoc.evaluate('./para[contains(translate(., \'ABCDEFGHIJKLMNOPQRSTUVWXYZ\', \'abcdefghijklmnopqrstuvwxyz\'),\'see \')]/xref/@linkend', descriptionNode, nsResolver, XPathResult.ANY_TYPE, null);
+  const referencedSectionIterator = helper.xmlDoc.evaluate('./para[contains(translate(., \'ABCDEFGHIJKLMNOPQRSTUVWXYZ\', \'abcdefghijklmnopqrstuvwxyz\'),\'see \')]/xref/@linkend', descriptionNode, nsResolver, parsingCommon.ANY_TYPE, null);
 
   for (let sectionReferenceNode = referencedSectionIterator.iterateNext(); sectionReferenceNode !== null; sectionReferenceNode = referencedSectionIterator.iterateNext()) {
     const sectionId = sectionReferenceNode.textContent.trim();
@@ -408,23 +407,23 @@ module.exports = function (xmlDoc, dataDictionary, IODs) {
   console.log('Caching sections...');
   cacheSectionNodes(helper);
 
-  const iodIterator = xmlDoc.evaluate('/book/chapter[@label=\'A\']//table[caption[contains(.,\'IOD Modules\')]]', xmlDoc.documentElement, nsResolver, XPathResult.ANY_TYPE, null);
+  const iodIterator = xmlDoc.evaluate('/book/chapter[@label=\'A\']//table[caption[contains(.,\'IOD Modules\')]]', xmlDoc.documentElement, nsResolver, parsingCommon.ANY_TYPE, null);
   const output = {iods: {}, modules: {}};
 
   for (let iodNode = iodIterator.iterateNext(); iodNode !== null; iodNode = iodIterator.iterateNext()) {
-    const caption = xmlDoc.evaluate('./caption', iodNode, nsResolver, XPathResult.ANY_TYPE, null).iterateNext().textContent;
+    const caption = xmlDoc.evaluate('./caption', iodNode, nsResolver, parsingCommon.ANY_TYPE, null).iterateNext().textContent;
     const name = caption.replace(' IOD Modules', '');
     if (IODs && IODs.length > 0 && !IODs.includes(name)) continue;
     console.log(`Parsing IOD ${name}...`);
     const IOD = { name, modules: [] };
-    const moduleIterator = xmlDoc.evaluate('./tbody/tr', iodNode, nsResolver, XPathResult.ANY_TYPE, null);
+    const moduleIterator = xmlDoc.evaluate('./tbody/tr', iodNode, nsResolver, parsingCommon.ANY_TYPE, null);
 
     for (let moduleNode = moduleIterator.iterateNext(); moduleNode !== null; moduleNode = moduleIterator.iterateNext()) {
-      // Old way: const section = xmlDoc.evaluate('./td/para/xref/@linkend', moduleNode, nsResolver, XPathResult.ANY_TYPE, null).iterateNext().textContent;
-      const section = xmlDoc.evaluate('./td//xref/@linkend', moduleNode, nsResolver, XPathResult.ANY_TYPE, null).iterateNext().textContent;
-      const name = xmlDoc.evaluate('./td[last() - 2]/para/text()', moduleNode, nsResolver, XPathResult.ANY_TYPE, null).iterateNext().textContent;
+      // Old way: const section = xmlDoc.evaluate('./td/para/xref/@linkend', moduleNode, nsResolver, parsingCommon.ANY_TYPE, null).iterateNext().textContent;
+      const section = xmlDoc.evaluate('./td//xref/@linkend', moduleNode, nsResolver, parsingCommon.ANY_TYPE, null).iterateNext().textContent;
+      const name = xmlDoc.evaluate('./td[last() - 2]/para/text()', moduleNode, nsResolver, parsingCommon.ANY_TYPE, null).iterateNext().textContent;
       //console.log(`Parsing module ${name}...`);
-      const usage = xmlDoc.evaluate('./td[last()]/para/text()', moduleNode, nsResolver, XPathResult.ANY_TYPE, null).iterateNext().textContent;
+      const usage = xmlDoc.evaluate('./td[last()]/para/text()', moduleNode, nsResolver, parsingCommon.ANY_TYPE, null).iterateNext().textContent;
       const attributes = getModule(helper, section);
 
       output.modules[name] = attributes;

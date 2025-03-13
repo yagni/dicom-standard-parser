@@ -28,6 +28,9 @@
   "repository": "https://github.com/yagni/dicom-standard-parser.git",
   "license": "MIT",
   "dependencies": {
-    "jsdom": "^15.2.0"
+    "jsdom": "^26.0.0"
+  },
+  "devDependencies": {
+    "json-stable-stringify": "^1.2.1"
   }
 }
